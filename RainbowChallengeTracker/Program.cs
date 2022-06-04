@@ -77,23 +77,29 @@ namespace RainbowChallengeTracker
                 var completed = int.Parse(e.Message.Embeds[0].Fields[1].Value);
                 if (completed + 1 >= int.Parse(e.Message.Embeds[0].Fields[0].Value))
                 {
-                    var rows = e.Message.Components.First();
-                    var components = rows.Components.ToList();
-                    components.ForEach(x => ((DiscordButtonComponent)x).Disable());
-
                     messageBuilder.AddEmbed(new DiscordEmbedBuilder()
                     {
                         Title = "Completed",
                         Description = $"~~{e.Message.Embeds[0].Description}~~",
                         Color = DiscordColor.Green
-                    }).AddComponents(components);
+                    });
+                    foreach (var row in e.Message.Components)
+                    {
+                        var components = row.Components.ToList();
+                        components.ForEach(x => ((DiscordButtonComponent)x).Disable());
+                        messageBuilder.AddComponents(components);
+                    }
+
                 }
                 else
                 {
                     e.Message.Embeds[0].Fields[1].Value = (completed + 1).ToString();
-                    var rows = e.Message.Components.First();
-                    var components = rows.Components.ToList();
-                    messageBuilder.AddEmbed(e.Message.Embeds[0]).AddComponents(components);
+                    messageBuilder.AddEmbed(e.Message.Embeds[0]);
+                    foreach (var row in e.Message.Components)
+                    {
+                        var components = row.Components.ToList();
+                        messageBuilder.AddComponents(components);
+                    }
                 }
             }
             else if (e.Id == "decrement")
@@ -103,22 +109,28 @@ namespace RainbowChallengeTracker
                     return;
 
                 e.Message.Embeds[0].Fields[1].Value = (completed - 1).ToString();
-                var rows = e.Message.Components.First();
-                var components = rows.Components.ToList();
-                messageBuilder.AddEmbed(e.Message.Embeds[0]).AddComponents(components);
+                messageBuilder.AddEmbed(e.Message.Embeds[0]);
+                foreach (var row in e.Message.Components)
+                {
+                    var components = row.Components.ToList();
+                    messageBuilder.AddComponents(components);
+                }
             }
             else if (e.Id == "done")
             {
-                var rows = e.Message.Components.First();
-                var components = rows.Components.ToList();
-                components.ForEach(x => ((DiscordButtonComponent)x).Disable());
-
                 messageBuilder.AddEmbed(new DiscordEmbedBuilder()
                 {
                     Title = "Completed",
                     Description = $"~~{e.Message.Embeds[0].Description}~~",
                     Color = DiscordColor.Green
-                }).AddComponents(components);
+                });
+
+                foreach (var row in e.Message.Components)
+                {
+                    var components = row.Components.ToList();
+                    components.ForEach(x => ((DiscordButtonComponent)x).Disable());
+                    messageBuilder.AddComponents(components);
+                }
             }
             await e.Message.ModifyAsync(messageBuilder);
         }
