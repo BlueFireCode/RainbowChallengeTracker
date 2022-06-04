@@ -62,7 +62,7 @@ namespace RainbowChallengeTracker.Interactions
             }
 
             var channel = await ctx.Guild.CreateChannelAsync(ctx.Member.Id.ToString(), ChannelType.Text, category);
-            await channel.AddOverwriteAsync(ctx.Member, allow: Permissions.ManageChannels | Permissions.SendMessages | Permissions.ManageMessages);
+            await channel.AddOverwriteAsync(ctx.Member, allow: Permissions.AccessChannels | Permissions.ManageChannels | Permissions.SendMessages | Permissions.ManageMessages);
 #pragma warning disable CS8604
             await SendMessageAsync(channel, ChallengeRepository.Challenges.Find(x => x.Text == text), (int?)alreadyCompleted);
 #pragma warning restore CS8604
