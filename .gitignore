@@ -263,6 +263,5 @@ FakesAssemblies/
 *.opt
 
 # User defined files
-launchSettings.json
 settings.env
 error.txt

@@ -12,7 +12,13 @@ namespace RainbowChallengeTracker
     public class Program
     {
         public static void Main(string[] _)
-            => MainAsync().GetAwaiter().GetResult();
+        {
+#if DEBUG
+            foreach (var line in File.ReadAllLines("settings.env"))
+                Environment.SetEnvironmentVariable(line[..line.IndexOf('=')], line[(line.IndexOf('=') + 1)..]);
+#endif
+            MainAsync().GetAwaiter().GetResult();
+        }
 
         public static async Task MainAsync()
         {
