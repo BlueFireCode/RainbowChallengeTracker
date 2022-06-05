@@ -52,7 +52,7 @@ namespace RainbowChallengeTracker.Interactions
             }
 
             var category = ctx.Guild.GetChannel((ulong)guild.Category);
-            if (category.Children.Any(x => x.Topic.StartsWith(ctx.Member.Id.ToString())))
+            if (category.Children.Any(x => x.Topic is not null && x.Topic.StartsWith(ctx.Member.Id.ToString())))
             {
 #pragma warning disable CS8604
                 await SendMessageAsync(category.Children.First(x => x.Topic.StartsWith(ctx.Member.Id.ToString())),
@@ -67,7 +67,7 @@ namespace RainbowChallengeTracker.Interactions
                 ChannelType.Text, 
                 category, 
                 ctx.Member.Id.ToString() + " You can safely edit this channel topic, as long as you leave this id at the beginning of it.\n" +
-                    "The channels name can also safely be changed.");
+                    "The channel's name can also safely be changed.");
             await channel.AddOverwriteAsync(ctx.Member, allow: 
                 Permissions.AccessChannels | 
                 Permissions.ManageChannels | 

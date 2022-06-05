@@ -45,8 +45,13 @@ namespace RainbowChallengeTracker
             var slashCommands = client.UseSlashCommands();
 
             //register interactions
+#if DEBUG
+            slashCommands.RegisterCommands<OwnerCommands>(512370308532142091);
+            slashCommands.RegisterCommands<UserCommands>(512370308532142091);
+#else
             slashCommands.RegisterCommands<OwnerCommands>();
             slashCommands.RegisterCommands<UserCommands>();
+#endif
 
             //register interaction events
             slashCommands.SlashCommandErrored += SlashCommands_SlashCommandErrored;
