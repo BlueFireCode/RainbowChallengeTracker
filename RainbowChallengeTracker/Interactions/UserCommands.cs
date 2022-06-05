@@ -52,19 +52,31 @@ namespace RainbowChallengeTracker.Interactions
             }
 
             var category = ctx.Guild.GetChannel((ulong)guild.Category);
-            if (category.Children.Any(x => x.Name == ctx.Member.Id.ToString()))
+            if (category.Children.Any(x => x.Topic.StartsWith(ctx.Member.Id.ToString())))
             {
 #pragma warning disable CS8604
-                await SendMessageAsync(category.Children.First(x => x.Name == ctx.Member.Id.ToString()), ChallengeRepository.Challenges.Find(x => x.Text == text), (int?)alreadyCompleted);
+                await SendMessageAsync(category.Children.First(x => x.Topic.StartsWith(ctx.Member.Id.ToString())),
+                    ChallengeRepository.Challenges.Find(x => x.Text == text), 
+                    (int?)alreadyCompleted);
 #pragma warning restore CS8604
                 await ctx.FollowUpAsync(new() { Content = "Done!" });
                 return;
             }
 
-            var channel = await ctx.Guild.CreateChannelAsync(ctx.Member.Id.ToString(), ChannelType.Text, category);
-            await channel.AddOverwriteAsync(ctx.Member, allow: Permissions.AccessChannels | Permissions.ManageChannels | Permissions.SendMessages | Permissions.ManageMessages);
+            var channel = await ctx.Guild.CreateChannelAsync(ctx.Member.DisplayName, 
+                ChannelType.Text, 
+                category, 
+                ctx.Member.Id.ToString() + " You can safely edit this channel topic, as long as you leave this id at the beginning of it.\n" +
+                    "The channels name can also safely be changed.");
+            await channel.AddOverwriteAsync(ctx.Member, allow: 
+                Permissions.AccessChannels | 
+                Permissions.ManageChannels | 
+                Permissions.SendMessages | 
+                Permissions.ManageMessages);
 #pragma warning disable CS8604
-            await SendMessageAsync(channel, ChallengeRepository.Challenges.Find(x => x.Text == text), (int?)alreadyCompleted);
+            await SendMessageAsync(channel, 
+                ChallengeRepository.Challenges.Find(x => x.Text == text),
+                (int?)alreadyCompleted);
 #pragma warning restore CS8604
             await ctx.FollowUpAsync(new() { Content = $"Done! {channel.Mention}" });
         }

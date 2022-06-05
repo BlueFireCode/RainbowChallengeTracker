@@ -8,6 +8,26 @@ namespace RainbowChallengeTracker.Interactions
 {
     public class OwnerCommands : ApplicationCommandModule
     {
+        [SlashCommand("ReloadCache", "Reload the client cache, if any changes have been made in the database manually.")]
+        public async Task ReloadCache(InteractionContext ctx)
+        {
+            if (ctx.Member.Id != 387325006176059394)
+            {
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new()
+                {
+                    Content = "You cant do that!",
+                    IsEphemeral = true
+                });
+                return;
+            }
+
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new() { IsEphemeral = true });
+
+            ChallengeRepository.ReloadCache();
+
+            await ctx.FollowUpAsync(new() { Content = "Done!" });
+        }
+
         [SlashCommand("setup", "Set up the bot for a server")]
         public async Task Setup(InteractionContext ctx, 
             [Option("Category", "The category to use for challenge channels")] DiscordChannel category)
@@ -34,13 +54,15 @@ namespace RainbowChallengeTracker.Interactions
             {
                 var channel = await ctx.Guild.CreateChannelAsync("test", ChannelType.Text, category);
                 await channel.ModifyAsync(x => x.Name = "testing");
+                await channel.AddOverwriteAsync(ctx.Member, allow: Permissions.AccessChannels | Permissions.ManageChannels | Permissions.SendMessages | Permissions.ManageMessages);
+                await channel.SendMessageAsync("test");
                 await channel.DeleteAsync();
             }
             catch (UnauthorizedException)
             {
                 await ctx.FollowUpAsync(new()
                 {
-                    Content = "I need permission to create, delete and modify channels in that category!"
+                    Content = "I need permission to create, delete and modify channels in that category, aswell as to send messages in those channels!"
                 });
                 return;
             }
