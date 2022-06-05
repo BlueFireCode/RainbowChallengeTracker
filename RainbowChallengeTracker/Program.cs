@@ -94,7 +94,6 @@ namespace RainbowChallengeTracker
                         components.ForEach(x => ((DiscordButtonComponent)x).Disable());
                         messageBuilder.AddComponents(components);
                     }
-
                 }
                 else
                 {

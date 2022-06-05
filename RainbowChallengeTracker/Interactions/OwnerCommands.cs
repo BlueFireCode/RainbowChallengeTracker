@@ -29,7 +29,7 @@ namespace RainbowChallengeTracker.Interactions
         }
 
         [SlashCommand("setup", "Set up the bot for a server")]
-        public async Task Setup(InteractionContext ctx, 
+        public async Task Setup(InteractionContext ctx,
             [Option("Category", "The category to use for challenge channels")] DiscordChannel category)
         {
             //check if user has perms

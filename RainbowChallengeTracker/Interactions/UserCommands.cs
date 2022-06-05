@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using RainbowChallengeTracker.DBAccess.Models;
 using RainbowChallengeTracker.DBAccess.Repository;
+using RainbowChallengeTracker.Interactions.Autocomplete;
 
 namespace RainbowChallengeTracker.Interactions
 {
@@ -56,25 +57,25 @@ namespace RainbowChallengeTracker.Interactions
             {
 #pragma warning disable CS8604
                 await SendMessageAsync(category.Children.First(x => x.Topic.StartsWith(ctx.Member.Id.ToString())),
-                    ChallengeRepository.Challenges.Find(x => x.Text == text), 
+                    ChallengeRepository.Challenges.Find(x => x.Text == text),
                     (int?)alreadyCompleted);
 #pragma warning restore CS8604
                 await ctx.FollowUpAsync(new() { Content = "Done!" });
                 return;
             }
 
-            var channel = await ctx.Guild.CreateChannelAsync(ctx.Member.DisplayName, 
-                ChannelType.Text, 
-                category, 
+            var channel = await ctx.Guild.CreateChannelAsync(ctx.Member.DisplayName,
+                ChannelType.Text,
+                category,
                 ctx.Member.Id.ToString() + " You can safely edit this channel topic, as long as you leave this id at the beginning of it.\n" +
                     "The channel's name can also safely be changed.");
-            await channel.AddOverwriteAsync(ctx.Member, allow: 
-                Permissions.AccessChannels | 
-                Permissions.ManageChannels | 
-                Permissions.SendMessages | 
+            await channel.AddOverwriteAsync(ctx.Member, allow:
+                Permissions.AccessChannels |
+                Permissions.ManageChannels |
+                Permissions.SendMessages |
                 Permissions.ManageMessages);
 #pragma warning disable CS8604
-            await SendMessageAsync(channel, 
+            await SendMessageAsync(channel,
                 ChallengeRepository.Challenges.Find(x => x.Text == text),
                 (int?)alreadyCompleted);
 #pragma warning restore CS8604
@@ -102,32 +103,6 @@ namespace RainbowChallengeTracker.Interactions
             });
             message.AddComponents(new DiscordButtonComponent(ButtonStyle.Success, "done", "Completed", emoji: new DiscordComponentEmoji("✔️")));
             await message.SendAsync(channel);
-        }
-    }
-
-    public class AutoCompleteProvider : IAutocompleteProvider
-    {
-        public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
-       {
-            var choices = new List<DiscordAutoCompleteChoice>();
-            foreach (var challenge in ChallengeRepository.Challenges)
-                choices.Add(new(challenge.Text, challenge.Text));
-            return Task.FromResult(choices.Where(x =>
-            {
-                try
-                {
-                    if (ctx.OptionValue is null)
-                        return true;
-                    var optionString = ctx.OptionValue?.ToString();
-                    if (string.IsNullOrWhiteSpace(optionString))
-                        return true;
-                    return x.Name.ToString().Contains(optionString);
-                }
-                catch
-                {
-                    return true;
-                }
-            }));
         }
     }
 }
