@@ -75,6 +75,15 @@ namespace RainbowChallengeTracker
 
         private static async Task Client_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
         {
+            if (!e.Channel.Topic.StartsWith(e.User.Id.ToString()))
+            {
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new() 
+                {
+                    IsEphemeral = true, 
+                    Content = "You cant do that!" 
+                });
+                return;
+            }
             await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage);
             var messageBuilder = new DiscordMessageBuilder();
             if (e.Id == "increment")
