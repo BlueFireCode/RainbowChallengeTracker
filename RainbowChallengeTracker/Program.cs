@@ -55,7 +55,7 @@ namespace RainbowChallengeTracker
 
             //register interaction events
             slashCommands.SlashCommandErrored += SlashCommands_SlashCommandErrored;
-
+            slashCommands.AutocompleteErrored += SlashCommands_AutocompleteErrored;
             await client.ConnectAsync();
 
             await Task.Delay(-1);
@@ -146,6 +146,15 @@ namespace RainbowChallengeTracker
                 }
             }
             await e.Message.ModifyAsync(messageBuilder);
+        }
+
+        private static Task SlashCommands_AutocompleteErrored(SlashCommandsExtension sender, AutocompleteErrorEventArgs e)
+        {
+            //todo: add proper logging
+            Console.WriteLine(DateTime.Now);
+            Console.WriteLine(e.Exception.Message);
+            Console.WriteLine(e.Exception.StackTrace);
+            return Task.CompletedTask;
         }
 
         private static Task SlashCommands_SlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
