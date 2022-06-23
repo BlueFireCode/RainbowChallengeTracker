@@ -10,7 +10,7 @@ namespace RainbowChallengeTracker.Interactions.Autocomplete
         {
             var choices = new List<DiscordAutoCompleteChoice>();
             foreach (var challenge in ChallengeRepository.Challenges)
-                choices.Add(new(challenge.Text, challenge.Text));
+                choices.Add(new(challenge.Text[..(challenge.Text.Length > 100 ? 100 : challenge.Text.Length)], challenge.ID));
             return Task.FromResult(choices.Where(x =>
             {
                 try
@@ -26,7 +26,7 @@ namespace RainbowChallengeTracker.Interactions.Autocomplete
                 {
                     return true;
                 }
-            }).Take(5));
+            }));
         }
     }
 }

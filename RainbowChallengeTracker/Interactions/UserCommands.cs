@@ -9,18 +9,12 @@ namespace RainbowChallengeTracker.Interactions
 {
     public class UserCommands : ApplicationCommandModule
     {
-        [SlashCommand("CreateChallenge", "Create a new challenge for yourself")]
-        public async Task CreateChallenge
-        (
+        [SlashCommand("AddChallenge", "Add a challenge for yourself")]
+        public async Task AddChallenge(
             InteractionContext ctx,
-
             [Option("Text", "The challenge text", true)]
             [Autocomplete(typeof(AutoCompleteProvider))]
-            string text,
-
-            [Option("Amount", "The amount of Kills/Drone kills/etc.. the challenge asks for in total")]
-            long? amount = null,
-
+            long id,
             [Option("AlreadyCompleted", "The amount of Kills/Drone kills/etc.. you have already done")]
             long? alreadyCompleted = null
         )
@@ -37,19 +31,10 @@ namespace RainbowChallengeTracker.Interactions
                 return;
             }
 
-            if (!ChallengeRepository.Challenges.Any(x => x.Text == text))
+            if (!ChallengeRepository.Challenges.Any(x => x.ID == id))
             {
-                if (amount is null)
-                {
-                    await ctx.FollowUpAsync(new() { Content = "This seems to be a new challenge, please provide an amount for it!" });
-                    return;
-                }
-
-                ChallengeRepository.CreateChallenge(new()
-                {
-                    Text = text,
-                    Amount = (int)amount
-                });
+                await ctx.FollowUpAsync(new() { Content = "Could not find challenge, please create it first, using CreateChallenge!" });
+                return;
             }
 
             var category = ctx.Guild.GetChannel((ulong)guild.Category);
@@ -57,7 +42,7 @@ namespace RainbowChallengeTracker.Interactions
             {
 #pragma warning disable CS8604
                 await SendMessageAsync(category.Children.First(x => x.Topic.StartsWith(ctx.Member.Id.ToString())),
-                    ChallengeRepository.Challenges.Find(x => x.Text == text),
+                    ChallengeRepository.Challenges.Find(x => x.ID == (int)id),
                     (int?)alreadyCompleted);
 #pragma warning restore CS8604
                 await ctx.FollowUpAsync(new() { Content = "Done!" });
@@ -76,10 +61,37 @@ namespace RainbowChallengeTracker.Interactions
                 Permissions.ManageMessages);
 #pragma warning disable CS8604
             await SendMessageAsync(channel,
-                ChallengeRepository.Challenges.Find(x => x.Text == text),
+                ChallengeRepository.Challenges.Find(x => x.ID == (int)id),
                 (int?)alreadyCompleted);
 #pragma warning restore CS8604
             await ctx.FollowUpAsync(new() { Content = $"Done! {channel.Mention}" });
+        }
+
+        [SlashCommand("CreateChallenge", "Create a new challenge for yourself")]
+        public async Task CreateChallenge
+        (
+            InteractionContext ctx,
+            [Option("Text", "The challenge text")]
+            string text,
+            [Option("Amount", "The amount of Kills/Drone kills/etc.. the challenge asks for in total")]
+            long amount
+        )
+        {
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new() { IsEphemeral = true });
+
+            if (ChallengeRepository.Challenges.Any(x => x.Text == text))
+            {
+                await ctx.FollowUpAsync(new() { Content = "This challenge already exists!" });
+                return;
+            }
+            
+            ChallengeRepository.CreateChallenge(new()
+            {
+                Text = text,
+                Amount = (int)amount
+            });
+
+            await ctx.FollowUpAsync(new() { Content = $"Done!" });
         }
 
         private async Task SendMessageAsync(DiscordChannel channel, ChallengeModel challenge, int? alreadyCompleted)

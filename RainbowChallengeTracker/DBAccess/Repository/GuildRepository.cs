@@ -25,7 +25,7 @@ namespace RainbowChallengeTracker.DBAccess.Repository
                 entity = new()
                 {
                     Id = id,
-                    Category = ret is DBNull ? null : (ulong)(long)ret
+                    Category = ret is null ? null : ret is DBNull ? null : (ulong)(long)ret
                 };
                 DbConnection.Close();
             }
