@@ -14,7 +14,7 @@ namespace RainbowChallengeTracker.Interactions
             InteractionContext ctx,
             [Option("Text", "The challenge text", true)]
             [Autocomplete(typeof(AutoCompleteProvider))]
-            long id,
+            string idString,
             [Option("AlreadyCompleted", "The amount of Kills/Drone kills/etc.. you have already done")]
             long? alreadyCompleted = null
         )
@@ -31,6 +31,7 @@ namespace RainbowChallengeTracker.Interactions
                 return;
             }
 
+            int id = int.Parse(idString);
             if (!ChallengeRepository.Challenges.Any(x => x.ID == id))
             {
                 await ctx.FollowUpAsync(new() { Content = "Could not find challenge, please create it first, using CreateChallenge!" });
@@ -42,7 +43,7 @@ namespace RainbowChallengeTracker.Interactions
             {
 #pragma warning disable CS8604
                 await SendMessageAsync(category.Children.First(x => x.Topic.StartsWith(ctx.Member.Id.ToString())),
-                    ChallengeRepository.Challenges.Find(x => x.ID == (int)id),
+                    ChallengeRepository.Challenges.Find(x => x.ID == id),
                     (int?)alreadyCompleted);
 #pragma warning restore CS8604
                 await ctx.FollowUpAsync(new() { Content = "Done!" });

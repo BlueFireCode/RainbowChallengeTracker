@@ -11,14 +11,15 @@ namespace RainbowChallengeTracker.Interactions.Autocomplete
         {
             var choices = new List<DiscordAutoCompleteChoice>();
             foreach (var challenge in ChallengeRepository.Challenges)
-                choices.Add(new(challenge.Text[..(challenge.Text.Length > 100 ? 100 : challenge.Text.Length)], challenge.ID));
+                choices.Add(new(challenge.Text[..(challenge.Text.Length > 100 ? 100 : challenge.Text.Length)], challenge.ID.ToString()));
             return Task.FromResult(choices.Where(x =>
-            {
+           {
                 try
                 {
-                    if (ctx.OptionValue is null)
+                    var option = ctx.Options.FirstOrDefault(x => x.Focused);
+                    if (option is null)
                         return false;
-                    var optionString = ctx.OptionValue?.ToString();
+                    var optionString = option.Value.ToString();
                     if (string.IsNullOrWhiteSpace(optionString))
                         return false;
                     var res = Fuzz.PartialRatio(optionString.ToLower(), x.Name.ToLower());
