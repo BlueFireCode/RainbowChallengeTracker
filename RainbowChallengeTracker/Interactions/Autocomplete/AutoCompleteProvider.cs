@@ -26,7 +26,7 @@ namespace RainbowChallengeTracker.Interactions.Autocomplete
                 {
                     return true;
                 }
-            }));
+            }).Take(25));
         }
     }
 }
