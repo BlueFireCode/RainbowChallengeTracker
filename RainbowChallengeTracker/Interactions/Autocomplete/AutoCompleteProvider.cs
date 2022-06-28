@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using FuzzySharp;
 using RainbowChallengeTracker.DBAccess.Repository;
 
 namespace RainbowChallengeTracker.Interactions.Autocomplete
@@ -16,15 +17,16 @@ namespace RainbowChallengeTracker.Interactions.Autocomplete
                 try
                 {
                     if (ctx.OptionValue is null)
-                        return true;
+                        return false;
                     var optionString = ctx.OptionValue?.ToString();
                     if (string.IsNullOrWhiteSpace(optionString))
-                        return true;
-                    return x.Name.ToString().Contains(optionString);
+                        return false;
+                    var res = Fuzz.PartialRatio(optionString.ToLower(), x.Name.ToLower());
+                    return res > 50;
                 }
                 catch
                 {
-                    return true;
+                    return false;
                 }
             }).Take(25));
         }
